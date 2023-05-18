@@ -125,11 +125,13 @@ def pipline(df, weight, recommendations = 2,  best_policy_value = 100, rho = 0.1
     corr_df = generate_grey_relational_coefficient(df, best_policy_value, rho)
     grade = grey_relational_grade(weight, corr_df)
     sorted_policies = {k: v for k, v in sorted(grade.items(), key=lambda item: item[1], reverse = True)}
+    if recommendations > len(sorted_policies):
+        raise IndexError(f"Recommendations exceed number of policies! Recommendations should be less than {len(sorted_policies)}" )
     policies = list(sorted_policies.keys())
     return policies[0:recommendations]
 
 
 weights2 = preference_modeling(user_input, linguistic)
-print(pipline(df, weights2))
+print(pipline(df, weights2, 2))
 
 
