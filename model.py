@@ -1,6 +1,7 @@
 import pandas as pd
 
 
+
 linguistic = {
     "Very Important" : [0.9,0.05,0.05],
     "Important" : [0.75, 0.2, 0.05],
@@ -36,6 +37,12 @@ user_input = {
     "Riders" : "Medium"
 }
 
+user_demographics = {
+    "Age":20,
+}
+
+full_input = [user_demographics, user_input]
+
 weights = {
     "Low_Premium" : 0.179,
     "Flexibility": 0.056,
@@ -49,11 +56,15 @@ weights = {
 }
 
 
+
+
+
+
 def calculate(IFNs : list) -> float:
     return IFNs[0] + IFNs[2] * (IFNs[0] / (IFNs[0] + IFNs[1]))
 
 
-def preference_modeling(user_pref : dict, linguistics: dict) -> dict:
+def preference_modeling(user_pref : dict, linguistic: dict) -> dict:
     weights = {}
     preferences = list(user_pref.keys())
     sum_pref = 0
