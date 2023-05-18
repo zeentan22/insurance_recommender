@@ -48,6 +48,11 @@ weights = {
     "Riders": 0.105
 }
 
+
+def calculate(IFNs : list) -> float:
+    return IFNs[0] + IFNs[2] * (IFNs[0] / (IFNs[0] + IFNs[1]))
+
+
 def preference_modeling(user_pref : dict, linguistics: dict) -> dict:
     weights = {}
     preferences = list(user_pref.keys())
@@ -55,7 +60,7 @@ def preference_modeling(user_pref : dict, linguistics: dict) -> dict:
     for pref in preferences:
         importance = user_pref[pref]
         IFNs = linguistic[importance]
-        numerator = IFNs[0] + IFNs[2] * (IFNs[0] / (IFNs[0] + IFNs[1]))
+        numerator = calculate(IFNs)
         weights[pref] = numerator
         sum_pref += numerator
     for pref in preferences:
@@ -63,11 +68,10 @@ def preference_modeling(user_pref : dict, linguistics: dict) -> dict:
     return weights
 
 
-def generate_grey_relational_coefficient(df, best_policy_value = 100, rho = 0.1):
+def generate_grey_relational_coefficient(df, best_policy_val = 100, rho = 0.1):
     d = {}
     policies = df.index.tolist()
     print(policies)
-    best_policy_val = 100
     for column in df:
         temp_df = df[[column]]
         coeff_list = []
@@ -117,10 +121,10 @@ def grey_relational_grade(weight, grey_relational_coefficient):
         
     return d
 
-def pipline(df, weight, recommendations = 1,  best_policy_value = 100, rho = 0.1):
-    corr_df = generate_grey_relational_coefficient(df)
+def pipline(df, weight, recommendations = 2,  best_policy_value = 100, rho = 0.1):
+    corr_df = generate_grey_relational_coefficient(df, best_policy_value, rho)
     grade = grey_relational_grade(weight, corr_df)
-    sorted_policies = {k: v for k, v in sorted(grade.items(), key=lambda item: item[1])}
+    sorted_policies = {k: v for k, v in sorted(grade.items(), key=lambda item: item[1], reverse = True)}
     policies = list(sorted_policies.keys())
     return policies[0:recommendations]
 
