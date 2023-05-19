@@ -32,7 +32,7 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-This insurance recommender system is inspired by <a href = "https://sciresol.s3.us-east-2.amazonaws.com/IJST/Articles/2017/Issue-14/Article14.pdf"> 
+This insurance recommender system aims to replicate the system illustrated in <a href = "https://sciresol.s3.us-east-2.amazonaws.com/IJST/Articles/2017/Issue-14/Article14.pdf"> 
 Multicriteria Recommender System for Life Insurance Plans based on Utility Theory published in Indian Journal of Science and Technology</a>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
