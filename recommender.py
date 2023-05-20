@@ -4,15 +4,15 @@ import functools
 
 class InsuranceRecommender:
 
-    def __init__(self, linguistic, user_input, full_data):
+    def __init__(self, linguistic: dict, full_input: dict, full_data: pd.DataFrame):
         self.linguistic = linguistic
-        self.user_input = user_input[1]
-        self.user_demographics = user_input[0]
+        self.user_input = full_input["user_input"]
+        self.user_demographics = full_input["user_demographics"]
         self.df = full_data
-        pass
+        self.policy_rankings = None
+        
 
-    
-    def filter_based_on_demographics(self, constraints = None):
+    def filter_based_on_demographics(self, constraints = None) -> None:
         user_age = self.user_demographics["Age"]
         self.df = self.df[self.df["Entry Age"] < user_age]
         self.df = self.df.drop("Entry Age", axis = 1)
@@ -37,7 +37,7 @@ class InsuranceRecommender:
         return weights
 
 
-    def generate_grey_relational_coefficient(self, df, best_policy_val = 100, rho = 0.1):
+    def generate_grey_relational_coefficient(self, df : pd.DataFrame, best_policy_val = 100, rho = 0.1) -> pd.DataFrame:
         d = {}
         policies = df.index.tolist()
         # print(policies)
@@ -69,7 +69,7 @@ class InsuranceRecommender:
             
         return corr_df
 
-    def grey_relational_grade(self, weight, grey_relational_coefficient):
+    def grey_relational_grade(self, weight: dict, grey_relational_coefficient: pd.DataFrame) -> dict:
         grade = 0
         policies = grey_relational_coefficient.index.tolist()
         d = {}
@@ -86,17 +86,28 @@ class InsuranceRecommender:
             
         return d
 
-    def pipeline(self, weight, recommendations,  best_policy_value, rho):
+    def pipeline(self, weight: dict, recommendations : int,  best_policy_value : int, rho : float) -> list:
         self.filter_based_on_demographics()
         corr_df = self.generate_grey_relational_coefficient(self.df, best_policy_value, rho)
         grade = self.grey_relational_grade(weight, corr_df)
         sorted_policies = {k: v for k, v in sorted(grade.items(), key=lambda item: item[1], reverse = True)}
+        if recommendations < 0:
+            raise ValueError(f"Reccomendations cannot be negative")
         if recommendations > len(sorted_policies):
             raise IndexError(f"Recommendations exceed number of policies! Recommendations should be less than {len(sorted_policies)}" )
         policies = list(sorted_policies.keys())
+        self.policy_rankings = sorted_policies
         return policies[0:recommendations]
+    
 
-    def run(self, recommendations = 2, best_policy_value = 100, rho = 0.1):
+
+    def run(self, recommendations = 2, best_policy_value = 100, rho = 0.1) -> list:
         weights2 = self.preference_modeling(self.user_input, self.linguistic)
         policies = self.pipeline(weights2, recommendations, best_policy_value, rho)
         return policies
+
+    def __repr__(self):
+        output = "Recommender system \n"
+        for policy, value in self.policy_rankings.items():
+            output = output + f"{policy} : {round(value,5)} \n"
+        return output

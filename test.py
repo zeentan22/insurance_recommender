@@ -45,6 +45,10 @@ user_demographics = {
 
 full_input = [user_demographics, user_input]
 
+full_input = {
+    "user_input" : user_input,
+    "user_demographics" : user_demographics
+}
 weights = {
     "Low_Premium" : 0.179,
     "Flexibility": 0.056,
@@ -62,4 +66,5 @@ if __name__ == "__main__":
     recommender = InsuranceRecommender(linguistic, full_input , df)
     recommender.df = df
     print(recommender.run(1))
+    print(recommender)
 
