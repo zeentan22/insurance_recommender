@@ -41,32 +41,47 @@ class InsuranceRecommender:
         d = {}
         policies = df.index.tolist()
         # print(policies)
+        print(df)
         for column in df:
             temp_df = df[[column]]
+            best_policy = np.repeat(100,len(df))
             coeff_list = []
-            min_ij, max_ij = 100 , 0
-            for policy in policies:
-                policy_i = temp_df[column][policy]
-                for row in temp_df.itertuples():
-                    if row.Index == policy:
-                        continue
-                    policy_j = getattr(row,column)
-                    dist_ij = abs(best_policy_val - policy_j)
-                    if dist_ij > max_ij:
-                        max_ij = dist_ij
-                    if dist_ij < min_ij:
-                        min_ij = dist_ij
 
-            for row in temp_df.itertuples():
-                policy_i = getattr(row,column)
-                dist_ij = best_policy_val - policy_i
-                coeff = (min_ij + rho * max_ij) / (dist_ij + rho * max_ij)
-                coeff_list.append(coeff)
+            # same as the for loop below
+            min_ij = np.amin(best_policy - temp_df[column].to_numpy())
+            max_ij = np.amax(best_policy - temp_df[column].to_numpy())
 
-            d[column] = coeff_list
+            # for policy in policies:
+            #     policy_i = temp_df[column][policy]
+            #     for row in temp_df.itertuples():
+            #         if row.Index == policy:
+            #             continue
+            #         policy_j = getattr(row,column)
+            #         dist_ij = abs(best_policy_val - policy_j)
+            #         if dist_ij > max_ij:
+            #             max_ij = dist_ij
+            #         if dist_ij < min_ij:
+            #             min_ij = dist_ij
 
-            corr_df = pd.DataFrame(data = d, index = policies)
+            # to perform optimisation, numpy vectorization is used instead of iterating through the dataframe...
+            # same as the for loop below
+            min_ij_np = np.repeat(min_ij, len(df))
+            max_ij_np = np.repeat(max_ij, len(df))
+
+            rho_np = np.repeat(rho, len(df))
+            dist_ij = best_policy - temp_df[column].to_numpy()
+            coeff_list2  = (min_ij_np + rho_np * max_ij_np) / (dist_ij + rho_np * max_ij_np).tolist()
             
+
+            # for row in temp_df.itertuples():
+            #     policy_i = getattr(row,column)
+            #     dist_ij = best_policy_val - policy_i
+            #     coeff = (min_ij + rho * max_ij) / (dist_ij + rho * max_ij)
+            #     coeff_list.append(coeff)
+
+            d[column] = coeff_list2
+            corr_df = pd.DataFrame(data = d, index = policies)
+            # print(corr_df)
         return corr_df
 
     def grey_relational_grade(self, weight: dict, grey_relational_coefficient: pd.DataFrame) -> dict:
@@ -83,6 +98,7 @@ class InsuranceRecommender:
             
         for policy in policies:
             d[policy] = d[policy] / sum_grade
+        print(sum_grade)
             
         return d
 
