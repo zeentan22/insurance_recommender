@@ -23,17 +23,10 @@ class InsuranceRecommender:
 
 
     def preference_modeling(self, user_pref : dict, linguistic: dict) -> dict:
-        weights = {}
-        preferences = list(user_pref.keys())
-        sum_pref = 0
-        for pref in preferences:
-            importance = user_pref[pref]
-            IFNs = linguistic[importance]
-            numerator = self.calculate(IFNs)
-            weights[pref] = numerator
-            sum_pref += numerator
-        for pref in preferences:
-            weights[pref] = weights[pref] / sum_pref
+        preferences = list(user_pref.keys())       
+        weights = {pref : self.calculate(linguistic[user_pref[pref]]) for pref in preferences}
+        sum_pref = sum(list([v for v in weights.values()]))
+        weights = {k : v / sum_pref for k ,v in weights.items()}
         return weights
 
 
@@ -41,13 +34,12 @@ class InsuranceRecommender:
         d = {}
         policies = df.index.tolist()
         # print(policies)
-        print(df)
         for column in df:
             temp_df = df[[column]]
             best_policy = np.repeat(100,len(df))
             coeff_list = []
 
-            # same as the for loop below
+            # same as the for loop below                                                            
             min_ij = np.amin(best_policy - temp_df[column].to_numpy())
             max_ij = np.amax(best_policy - temp_df[column].to_numpy())
 
@@ -62,6 +54,8 @@ class InsuranceRecommender:
             #             max_ij = dist_ij
             #         if dist_ij < min_ij:
             #             min_ij = dist_ij
+
+
 
             # to perform optimisation, numpy vectorization is used instead of iterating through the dataframe...
             # same as the for loop below
@@ -98,7 +92,7 @@ class InsuranceRecommender:
             
         for policy in policies:
             d[policy] = d[policy] / sum_grade
-        print(sum_grade)
+        # print(sum_grade)
             
         return d
 
@@ -117,7 +111,7 @@ class InsuranceRecommender:
     
 
 
-    def run(self, recommendations = 2, best_policy_value = 100, rho = 0.1) -> list:
+    def run(self, recommendations = 1, best_policy_value = 100, rho = 0.1) -> list:
         weights2 = self.preference_modeling(self.user_input, self.linguistic)
         policies = self.pipeline(weights2, recommendations, best_policy_value, rho)
         return policies
