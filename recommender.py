@@ -51,18 +51,6 @@ class InsuranceRecommender:
             min_ij = np.amin(best_policy - temp_df[column].to_numpy())
             max_ij = np.amax(best_policy - temp_df[column].to_numpy())
 
-            # for policy in policies:
-            #     policy_i = temp_df[column][policy]
-            #     for row in temp_df.itertuples():
-            #         if row.Index == policy:
-            #             continue
-            #         policy_j = getattr(row,column)
-            #         dist_ij = abs(best_policy_val - policy_j)
-            #         if dist_ij > max_ij:
-            #             max_ij = dist_ij
-            #         if dist_ij < min_ij:
-            #             min_ij = dist_ij
-
             # to perform optimisation, numpy vectorization is used instead of iterating through the dataframe...
             # same as the for loop below
             min_ij_np = np.repeat(min_ij, len(df))
@@ -72,13 +60,6 @@ class InsuranceRecommender:
             dist_ij = best_policy - temp_df[column].to_numpy()
             coeff_list2  = (min_ij_np + rho_np * max_ij_np) / (dist_ij + rho_np * max_ij_np).tolist()
             
-
-            # for row in temp_df.itertuples():
-            #     policy_i = getattr(row,column)
-            #     dist_ij = best_policy_val - policy_i
-            #     coeff = (min_ij + rho * max_ij) / (dist_ij + rho * max_ij)
-            #     coeff_list.append(coeff)
-
             d[column] = coeff_list2
             corr_df = pd.DataFrame(data = d, index = policies)
             # print(corr_df)
@@ -89,6 +70,7 @@ class InsuranceRecommender:
         policies = grey_relational_coefficient.index.tolist()
         d = {}
         sum_grade = 0
+        
         for policy in policies:
             grade = 0
             for column in self.df:
@@ -117,7 +99,7 @@ class InsuranceRecommender:
     
 
 
-    def run(self, recommendations = 2, best_policy_value = 100, rho = 0.1) -> list:
+    def run(self, recommendations = 1, best_policy_value = 100, rho = 0.1) -> list:
         weights2 = self.preference_modeling(self.user_input, self.linguistic)
         policies = self.pipeline(weights2, recommendations, best_policy_value, rho)
         return policies
