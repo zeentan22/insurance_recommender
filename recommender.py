@@ -23,17 +23,10 @@ class InsuranceRecommender:
 
 
     def preference_modeling(self, user_pref : dict, linguistic: dict) -> dict:
-        weights = {}
-        preferences = list(user_pref.keys())
-        sum_pref = 0
-        for pref in preferences:
-            importance = user_pref[pref]
-            IFNs = linguistic[importance]
-            numerator = self.calculate(IFNs)
-            weights[pref] = numerator
-            sum_pref += numerator
-        for pref in preferences:
-            weights[pref] = weights[pref] / sum_pref
+        preferences = list(user_pref.keys())       
+        weights = {pref : self.calculate(linguistic[user_pref[pref]]) for pref in preferences}
+        sum_pref = sum(list([v for v in weights.values()]))
+        weights = {k : v / sum_pref for k ,v in weights.items()}
         return weights
 
 
@@ -58,6 +51,7 @@ class InsuranceRecommender:
 
             rho_np = np.repeat(rho, len(df))
             dist_ij = best_policy - temp_df[column].to_numpy()
+            # changing a vector to list
             coeff_list2  = (min_ij_np + rho_np * max_ij_np) / (dist_ij + rho_np * max_ij_np).tolist()
             
             d[column] = coeff_list2
@@ -70,18 +64,15 @@ class InsuranceRecommender:
         policies = grey_relational_coefficient.index.tolist()
         d = {}
         sum_grade = 0
-        
         for policy in policies:
             grade = 0
             for column in self.df:
                 grade += weight[column] * grey_relational_coefficient[column][policy]  
             sum_grade += grade
             d[policy] = grade
-            
-        for policy in policies:
-            d[policy] = d[policy] / sum_grade
-        print(sum_grade)
-            
+        
+        sum_grade = sum(d.values())
+        d = {policy : grade / sum_grade for policy, grade in d.items()}
         return d
 
     def pipeline(self, weight: dict, recommendations : int,  best_policy_value : int, rho : float) -> list:
