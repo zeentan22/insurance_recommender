@@ -21,7 +21,7 @@ d = {"Low_Premium": [100,80,80,72,72,92,86],
       "Special_Schemes": [60,60,60,80,80,0,0],
       "Riders":
       [100,0,100,0,100,100,100],
-      "Entry Age":
+      "Entry_Age":
       [21,21,25,21,25, 21, 21]}
 
 df = pd.DataFrame(data = d, index = ["P1",'P2',"P3",'P4',"P5", 'P6','P7'])
@@ -61,6 +61,11 @@ weights = {
     "Riders": 0.105
 }
 
+def condition(row):
+    if row.Entry_Age > user_demographics["Age"]:
+        return True
+    else:
+        return False
 
 if __name__ == "__main__":
     recommender = InsuranceRecommender(linguistic, full_input , df)

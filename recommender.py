@@ -14,9 +14,18 @@ class InsuranceRecommender:
 
     def filter_based_on_demographics(self, constraints = None) -> None:
         user_age = self.user_demographics["Age"]
-        self.df = self.df[self.df["Entry Age"] < user_age]
-        self.df = self.df.drop("Entry Age", axis = 1)
+        self.df = self.df[self.df["Entry_Age"] < user_age]
+        self.df = self.df.drop("Entry_Age", axis = 1)
+    
 
+    # setting your own filter, not supported currently
+    def filter_based_on_demograhics2(self, constraints , *conditions) -> None:
+        temp_df = self.df
+        for condition in conditions:
+            temp_df = temp_df.loc[np.where(condition= condition)]
+        self.df = temp_df.drop(constraints, axis= 1)
+
+            
 
     def calculate(self, IFNs : list) -> float:
         return IFNs[0] + IFNs[2] * (IFNs[0] / (IFNs[0] + IFNs[1]))
@@ -72,6 +81,7 @@ class InsuranceRecommender:
             d[policy] = grade
         
         sum_grade = sum(d.values())
+        # normalization
         d = {policy : grade / sum_grade for policy, grade in d.items()}
         return d
 
